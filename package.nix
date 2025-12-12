@@ -9,8 +9,8 @@ stdenv.mkDerivation rec {
   version = "v0.253.10629";
 
   src = fetchzip {
-    url = "https://download-cdn.jetbrains.com/kotlin-lsp/0.253.10629/kotlin-0.253.10629.zip";
-    sha256 = "sha256-LCLGo3Q8/4TYI7z50UdXAbtPNgzFYtmUY/kzo2JCln0=";
+    url = "https://download-cdn.jetbrains.com/kotlin-lsp/261.13587.0/kotlin-lsp-261.13587.0-linux-x64.zip";
+    sha256 = "sha256-EweSqy30NJuxvlJup78O+e+JOkzvUdb6DshqAy1j9jE=";
     stripRoot = false;
   };
 
@@ -20,6 +20,11 @@ stdenv.mkDerivation rec {
     cp -r ${src}/* $out/lib/
 
     chmod a+x $out/lib/kotlin-lsp.sh
+    chmod a+x $out/lib/jre/bin/java
+    
+    # Patch the kotlin-lsp.sh script to remove chmod commands
+    sed -i '/chmod.*java/d' $out/lib/kotlin-lsp.sh
+    
     ln -s $out/lib/kotlin-lsp.sh $out/bin/kotlin-lsp
   '';
 
