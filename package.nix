@@ -46,7 +46,7 @@ stdenv.mkDerivation rec {
     description = "Kotlin Language Server";
     homepage = "https://github.com/Kotlin/kotlin-lsp";
     sourceProvenance = with sourceTypes; [ binaryBytecode ];
-    license = licenses.asl20;
+    license = licenses.unfree;
     mainProgram = "kotlin-lsp";
   };
 }
