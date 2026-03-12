@@ -32,11 +32,5 @@
           program = "${pkgs.callPackage ./package.nix { }}/bin/kotlin-lsp";
         };
       });
-
-      devShells = forAllSystems (pkgs: {
-        default = pkgs.mkShell {
-          buildInputs = [ (pkgs.callPackage ./package.nix { }) ];
-        };
-      });
     };
 }

@@ -4,13 +4,27 @@
   fetchzip,
 }:
 
+let
+  srcs = {
+    "x86_64-linux" = {
+      urlSuffix = "linux-x64";
+      sha256 = "sha256-jM1vuTsJrKzGOE57LCG8J7KQpo2gRfVLePaZecqNP2w=";
+    };
+    "aarch64-linux" = {
+      urlSuffix = "linux-aarch64";
+      sha256 = "sha256-JXofBW1dtv6a/AhtU5YIflotwXf1LLJpVU7H6VSlA/U=";
+    };
+  };
+  platformSrc = srcs.${stdenv.hostPlatform.system};
+in
+
 stdenv.mkDerivation rec {
   pname = "kotlin-lsp";
   version = "262.1668.0";
 
   src = fetchzip {
-    url = "https://download-cdn.jetbrains.com/kotlin-lsp/${version}/kotlin-lsp-${version}-linux-x64.zip";
-    sha256 = "sha256-jM1vuTsJrKzGOE57LCG8J7KQpo2gRfVLePaZecqNP2w=";
+    url = "https://download-cdn.jetbrains.com/kotlin-lsp/${version}/kotlin-lsp-${version}-${platformSrc.urlSuffix}.zip";
+    sha256 = platformSrc.sha256;
     stripRoot = false;
   };
 
