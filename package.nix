@@ -43,6 +43,7 @@ stdenv.mkDerivation rec {
   '';
 
   meta = with lib; {
+    name = "kotlin-lsp";
     description = "Kotlin Language Server";
     homepage = "https://github.com/Kotlin/kotlin-lsp";
     sourceProvenance = with sourceTypes; [ binaryBytecode ];
