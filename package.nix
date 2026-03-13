@@ -20,7 +20,7 @@ in
 
 stdenv.mkDerivation rec {
   pname = "kotlin-lsp";
-  version = "262.1668.0";
+  version = "262.1817.0";
 
   src = fetchzip {
     url = "https://download-cdn.jetbrains.com/kotlin-lsp/${version}/kotlin-lsp-${version}-${platformSrc.urlSuffix}.zip";
