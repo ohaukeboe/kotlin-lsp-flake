@@ -16,8 +16,14 @@
         "aarch64-linux"
       ];
 
-      forAllSystems =
-        f: nixpkgs.lib.genAttrs supportedSystems (system: f nixpkgs.legacyPackages.${system});
+      pkgsFor =
+        system:
+        import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+        };
+
+      forAllSystems = f: nixpkgs.lib.genAttrs supportedSystems (system: f (pkgsFor system));
 
     in
     {
