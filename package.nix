@@ -8,11 +8,11 @@ let
   srcs = {
     "x86_64-linux" = {
       urlSuffix = "linux-x64";
-      sha256 = "sha256-jM1vuTsJrKzGOE57LCG8J7KQpo2gRfVLePaZecqNP2w=";
+      sha256 = "sha256-Bf2qkFpNhQC/Mz563OapmCXeKN+dTrYyQbOcF6z6b48=";
     };
     "aarch64-linux" = {
       urlSuffix = "linux-aarch64";
-      sha256 = "sha256-JXofBW1dtv6a/AhtU5YIflotwXf1LLJpVU7H6VSlA/U=";
+      sha256 = "sha256-uyTVY4TX6YCv3/qow+CQeTRpez3PLegDX3OscpKPCUM=";
     };
   };
   platformSrc = srcs.${stdenv.hostPlatform.system};
@@ -20,7 +20,7 @@ in
 
 stdenv.mkDerivation rec {
   pname = "kotlin-lsp";
-  version = "262.1817.0";
+  version = "262.2310.0";
 
   src = fetchzip {
     url = "https://download-cdn.jetbrains.com/kotlin-lsp/${version}/kotlin-lsp-${version}-${platformSrc.urlSuffix}.zip";
