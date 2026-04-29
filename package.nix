@@ -1,53 +1,131 @@
 {
   lib,
+  stdenvNoCC,
+  fetchurl,
+  autoPatchelfHook,
+  versionCheckHook,
+  unar,
+  # Native libraries required by the bundled JBR and native JNI libs
   stdenv,
-  fetchzip,
+  zlib,
 }:
 
 let
-  srcs = {
-    "x86_64-linux" = {
-      urlSuffix = "linux-x64";
-      sha256 = "sha256-Bf2qkFpNhQC/Mz563OapmCXeKN+dTrYyQbOcF6z6b48=";
-    };
-    "aarch64-linux" = {
-      urlSuffix = "linux-aarch64";
-      sha256 = "sha256-uyTVY4TX6YCv3/qow+CQeTRpez3PLegDX3OscpKPCUM=";
-    };
-  };
-  platformSrc = srcs.${stdenv.hostPlatform.system};
+  system = stdenv.hostPlatform.system;
+
+  archiveFile =
+    version:
+    {
+      "x86_64-linux" = "kotlin-server-${version}.tar.gz";
+      "aarch64-linux" = "kotlin-server-${version}-aarch64.tar.gz";
+      "x86_64-darwin" = "kotlin-server-${version}.sit";
+      "aarch64-darwin" = "kotlin-server-${version}-aarch64.sit";
+    }
+    .${system};
+  archiveHash =
+    {
+      "x86_64-linux" = "sha256-RpcREMm4ozYM4/31Q3Rn9MRH2tN61z2/gdZK9neeQQU=";
+      "aarch64-linux" = "sha256-YlhwrgkcbQ3uJVFNVFxwim6lDXy7UVSq8aqRI8z/M4s=";
+      "x86_64-darwin" = "sha256-bwbv56EPlLnIoCjE7+tsfhdp9HoB7ft0RQrPMKtWZeQ=";
+      "aarch64-darwin" = "sha256-G3RXQ84irZJoGhvDsQRoA+lCpuHzbgT7ha6aQDNKLx4=";
+    }
+    .${system};
 in
 
-stdenv.mkDerivation rec {
+stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "kotlin-lsp";
-  version = "262.2310.0";
+  version = "262.4739.0";
+  __structuredAttrs = true;
+  strictDeps = true;
 
-  src = fetchzip {
-    url = "https://download-cdn.jetbrains.com/kotlin-lsp/${version}/kotlin-lsp-${version}-${platformSrc.urlSuffix}.zip";
-    sha256 = platformSrc.sha256;
-    stripRoot = false;
+  src = fetchurl {
+    url = "https://download-cdn.jetbrains.com/kotlin-lsp/${finalAttrs.version}/${archiveFile finalAttrs.version}";
+    hash = archiveHash;
   };
 
-  installPhase = ''
-    mkdir -p $out/bin $out/lib
-
-    cp -r ${src}/* $out/lib/
-
-    chmod a+x $out/lib/kotlin-lsp.sh
-    chmod a+x $out/lib/jre/bin/java
-
-    # Patch the kotlin-lsp.sh script to remove chmod commands
-    sed -i '/chmod.*java/d' $out/lib/kotlin-lsp.sh
-
-    ln -s $out/lib/kotlin-lsp.sh $out/bin/kotlin-lsp
+  # Add support for .sit archive using unar
+  preUnpack = ''
+    _tryUnar() {
+      if ! [[ "$curSrc" =~ \.sit$ ]]; then return 1; fi
+      ${lib.getExe unar} "$curSrc"
+    }
+    unpackCmdHooks+=(_tryUnar)
   '';
 
-  meta = with lib; {
-    name = "kotlin-lsp";
-    description = "Kotlin Language Server";
+  dontConfigure = true;
+  dontBuild = true;
+
+  # X11/Wayland/sound/font libs are GUI-only backends in the bundled JBR; the LSP server itself
+  # runs headless so these are safe to ignore.
+  autoPatchelfIgnoreMissingDeps = [
+    "libasound.so.2"
+    "libc.musl-x86_64.so.1"
+    "libfreetype.so.6"
+    "libwayland-client.so.0"
+    "libwayland-cursor.so.0"
+    "libX11.so.6"
+    "libXext.so.6"
+    "libXi.so.6"
+    "libXrender.so.1"
+    "libXtst.so.6"
+    "libxkbcommon.so.0"
+  ];
+  nativeBuildInputs = [
+    autoPatchelfHook
+  ];
+
+  buildInputs = [
+    # for native JNI libs (rocksdbjni, filewatcher),
+    stdenv.cc.cc.lib # libgcc_s.so.1, libstdc++.so.6
+    # for the bundled JBR (libjli, libzip, libinstrument, etc.)
+    zlib
+  ];
+
+  installPhase = ''
+    runHook preInstall
+
+    # Install the vendored JBR (JetBrains Runtime) tree under $out/share/kotlin-lsp.
+    # The `product-info.json` must sit in a parent directory of `intellij-server` binary.
+    mkdir -p $out/share/kotlin-lsp
+    cp -r bin jbr lib modules plugins product-info.json build.txt $out/share/kotlin-lsp/
+
+    mkdir -p $out/bin
+    ln -s ../share/kotlin-lsp/bin/intellij-server $out/bin/kotlin-lsp
+
+    runHook postInstall
+  '';
+
+  nativeInstallCheckInputs = [
+    versionCheckHook
+  ];
+  doInstallCheck = true;
+
+  meta = {
+    description = "Official Kotlin LSP, by JetBrains";
+    longDescription = ''
+      Pre-alpha official Kotlin support for editors using the Language Server Protocol.
+      The server is based on IntelliJ IDEA and the IntelliJ IDEA Kotlin Plugin.
+      Supports JVM Kotlin Gradle projects out of the box, with Maven and other build
+      systems also supported.
+    '';
     homepage = "https://github.com/Kotlin/kotlin-lsp";
-    sourceProvenance = with sourceTypes; [ binaryBytecode ];
-    license = licenses.unfree;
+    changelog = "https://github.com/Kotlin/kotlin-lsp/releases/tag/kotlin-lsp%2Fv${finalAttrs.version}";
+    maintainers = with lib.maintainers; [ bew ];
+    license = with lib.licenses; [
+      asl20
+      # NOTE: @2026-04 the LSP source code is not public
+      unfreeRedistributable
+    ];
+    platforms = [
+      "x86_64-linux"
+      "aarch64-linux"
+      "x86_64-darwin"
+      "aarch64-darwin"
+    ];
+    sourceProvenance = [
+      lib.sourceTypes.binaryNativeCode
+      lib.sourceTypes.binaryBytecode
+    ];
     mainProgram = "kotlin-lsp";
   };
-}
+})
