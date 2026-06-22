@@ -24,22 +24,22 @@ let
     .${system};
   archiveHash =
     {
-      "x86_64-linux" = "sha256-RpcREMm4ozYM4/31Q3Rn9MRH2tN61z2/gdZK9neeQQU=";
-      "aarch64-linux" = "sha256-YlhwrgkcbQ3uJVFNVFxwim6lDXy7UVSq8aqRI8z/M4s=";
-      "x86_64-darwin" = "sha256-bwbv56EPlLnIoCjE7+tsfhdp9HoB7ft0RQrPMKtWZeQ=";
-      "aarch64-darwin" = "sha256-G3RXQ84irZJoGhvDsQRoA+lCpuHzbgT7ha6aQDNKLx4=";
+      "x86_64-linux" = "sha256-i0xw6VBlQg54Z8mar58Y4LTnYxHsRT5MGjnj9q53TL8=";
+      "aarch64-linux" = "sha256-w+3VnvNKf6pNBPNRevt6kysZw/nPF9GhTp2hewtUQK0=";
+      "x86_64-darwin" = "sha256-84Ra6e44wi715DY5DYaj2Qj3cHPpZn+mQ6WuCVfBlyg=";
+      "aarch64-darwin" = "sha256-4gGDJieEu35mXOGupIVYcqixbyEeu0eNRSdzVTcy2fs=";
     }
     .${system};
 in
 
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "kotlin-lsp";
-  version = "262.4739.0";
+  version = "262.8190.0";
   __structuredAttrs = true;
   strictDeps = true;
 
   src = fetchurl {
-    url = "https://download-cdn.jetbrains.com/kotlin-lsp/${finalAttrs.version}/${archiveFile finalAttrs.version}";
+    url = "https://download-cdn.jetbrains.com/language-server/kotlin-server/${finalAttrs.version}/${archiveFile finalAttrs.version}";
     hash = archiveHash;
   };
 
