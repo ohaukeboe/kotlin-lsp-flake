@@ -24,17 +24,17 @@ let
     .${system};
   archiveHash =
     {
-      "x86_64-linux" = "sha256-LZnY4Zj75KqPRIHjd5lyTOlIA7TqEqYLQWBA4/zXzF4=";
-      "aarch64-linux" = "sha256-IxeDHG5WB9BbfrwdplUzASXODj1m+/JFF9/ORC3rwU4=";
-      "x86_64-darwin" = "sha256-Fzaf2pfIVBisJKs4qd9WshUio0aN/hk4Mv5FXBOSB0U=";
-      "aarch64-darwin" = "sha256-a6YCGnBrIeZM7zP34refGHwJEDIHIrstPtBa0RFexD8=";
+      "x86_64-linux" = "sha256-q4ykRV3C/F/hok2yvMxGwQQlTSxGUVXEJR7mXfjz98w=";
+      "aarch64-linux" = "sha256-UJmZAe+Lz6HlhWG2qNeCpy3qViD8+SpkEwgH+JJKVvw=";
+      "x86_64-darwin" = "sha256-5p4MnSe5FbLbnuaS7AjQl98aOU2fIRkEV+8ZnykF934=";
+      "aarch64-darwin" = "sha256-6+8uE81K3E7J4ECEuEgACj7HqdKRfGTyaVdM4u/p7K0=";
     }
     .${system};
 in
 
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "kotlin-lsp";
-  version = "262.9593.0";
+  version = "263.6379.0";
   __structuredAttrs = true;
   strictDeps = true;
 
